@@ -1,44 +1,128 @@
-# 🛒 ShopSphere Backend
+# AgroMart 🌾
+## Agricultural E-Commerce Backend
 
-**ShopSphere** is a Spring Boot backend for an e-commerce platform. It provides RESTful APIs to manage categories, products, and file uploads (images), ready to integrate with any frontend such as React. 🚀  
+AgroMart is a **Spring Boot–based RESTful backend application** designed for an agricultural e-commerce platform. The system allows users to manage farming products, categories, and address information while supporting image uploads and database persistence.
 
----
-
-## 📌 Table of Contents
-- [✨ Features](#-features)  
-- [💻 Tech Stack](#-tech-stack)  
-- [📂 Project Structure](#-project-structure)  
-- [🚀 Getting Started](#-getting-started)  
-- [📡 API Endpoints](#-api-endpoints)  
-- [🖼️ File Upload](#-file-upload)  
-- [🔮 Future Enhancements](#-future-enhancements)  
+The project follows a **clean layered architecture** using Controller, Service, Repository, and DTO patterns to ensure scalability, maintainability, and separation of concerns.
 
 ---
 
-## ✨ Features
-- ✅ CRUD operations for **Category** and **Product**  
-- 🖼️ File upload support for images (categories/products)  
-- 💾 Image URLs stored in database; files stored on server  
-- 🔧 Reusable `FileStorageService` for future file management  
-- 🏭 Follows **industry standards**: constructor injection, DTO usage, RESTful APIs  
+## 🚀 Features
+
+- Product management with full CRUD operations  
+- Category management with image upload support  
+- Address management APIs  
+- Image upload for products and categories using MultipartFile  
+- DTO-based request and response handling  
+- Entity–DTO mapping using ModelMapper  
+- Reusable BaseEntity with JPA lifecycle annotations  
+- Input validation using Jakarta Validation  
+- JPA entity relationships with Many-to-One mapping  
+- RESTful API design following Spring Boot best practices  
 
 ---
 
-## 💻 Tech Stack
-- Java 17 ☕  
-- Spring Boot 3 🌱  
-- Spring Data JPA / Hibernate 🗄️  
-- MySQL / H2 Database 🛢️  
-- Maven 📦  
-- Postman 📝 (for API testing)  
+## 🏗 Architecture
+
+The project follows a layered architecture:
+
+```
+Controller → Service → Repository → Database
+```
+
+### Controller Layer
+Handles HTTP requests and responses.
+
+### Service Layer
+Contains business logic.
+
+### Repository Layer
+Handles database operations using Spring Data JPA.
+
+### DTO Layer
+Transfers data between client and server without exposing entities.
 
 ---
 
-## 🔮 Future Enhancements
+## 🛠 Tech Stack
 
-- Add Product CRUD with category relationship 🛍️
-- Integrate with React frontend ⚛️
-- Add global exception handling 🚨
-- Add pagination and search for categories and products 🔍
-- Move file storage to cloud (AWS S3 / GCP Storage) ☁️
+### Backend
+- Java  
+- Spring Boot  
+- Spring Data JPA  
+- Hibernate  
 
+### Database
+- MySQL  
+
+### Tools & Libraries
+- ModelMapper  
+- Maven  
+- Multipart File Upload  
+- Jakarta Validation  
+
+---
+
+## 📂 Project Structure
+
+```
+src
+ ├── controller
+ ├── service
+ ├── serviceimpl
+ ├── repository
+ ├── model
+ ├── dto
+ ├── config
+ └── uploads
+```
+
+---
+
+## 🔗 API Modules
+
+The application provides REST APIs for:
+
+- Product Management  
+- Category Management  
+- Address Management  
+
+### Example Endpoints
+
+```
+POST   /api/products
+GET    /api/products
+PUT    /api/products/{id}
+DELETE /api/products/{id}
+```
+
+---
+
+## 📸 File Upload Support
+
+The application supports uploading images for:
+
+- Product images  
+- Additional product images  
+- Category images  
+
+Files are stored dynamically in the project upload directory.
+
+---
+
+## 🎯 Future Enhancements
+
+Planned improvements for the project:
+
+- User authentication using Spring Security and JWT  
+- Shopping cart functionality  
+- Order management system  
+- Payment gateway integration  
+- React-based frontend application  
+
+---
+
+## 👨‍💻 Author
+
+**Sathvik PM**  
+Java Full Stack Developer
