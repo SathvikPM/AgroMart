@@ -10,6 +10,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -45,4 +47,14 @@ public class UserServiceImpl implements UserService {
 
 
     }
+
+    @Override
+    public List<UserResponseDTO> getAllUsers() {
+        List<User> users=userRepository.findAll();
+
+        return users.stream().map(user->
+            modelMapper.map(user,UserResponseDTO.class)).toList();
+
+        }
+
 }
