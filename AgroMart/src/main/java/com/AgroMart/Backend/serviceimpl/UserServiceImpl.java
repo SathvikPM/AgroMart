@@ -6,8 +6,11 @@ import com.AgroMart.Backend.model.User;
 import com.AgroMart.Backend.repository.UserRepository;
 import com.AgroMart.Backend.service.FileStorageService;
 import com.AgroMart.Backend.service.UserService;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -48,8 +51,8 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    @Override
-    public List<UserResponseDTO> getAllUsers() {
+        @Override
+       public List<UserResponseDTO> getAllUsers() {
         List<User> users=userRepository.findAll();
 
         return users.stream().map(user->
@@ -57,4 +60,12 @@ public class UserServiceImpl implements UserService {
 
         }
 
+    @Override
+    public UserResponseDTO getUserById(Long id) {
+
+        User user=userRepository.findById(id).orElseThrow(()->new RuntimeException("user not found"));
+        UserResponseDTO userResponseDTO=modelMapper.map(user,UserResponseDTO.class);
+        return userResponseDTO;
+
+    }
 }
