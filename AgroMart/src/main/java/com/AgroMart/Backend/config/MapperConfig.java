@@ -9,6 +9,9 @@ public class MapperConfig {
 
     @Bean
     public ModelMapper modelMapper(){
-        return  new ModelMapper();
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration()   //skips the nullable values(used for Partial update(patch))
+                .setSkipNullEnabled(true);
+        return  modelMapper;
     }
 }

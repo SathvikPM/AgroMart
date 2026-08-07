@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -67,5 +68,82 @@ public class UserServiceImpl implements UserService {
         UserResponseDTO userResponseDTO=modelMapper.map(user,UserResponseDTO.class);
         return userResponseDTO;
 
+    }
+
+    @Override
+    public UserResponseDTO updateUser(Long id, UserRequestDTO userRequestDTO, MultipartFile profileImage) {
+
+        User user=userRepository.findById(id).orElseThrow(()->new RuntimeException("User Not Found"));
+        if(user.getEmail().equalsIgnoreCase(userRequestDTO.getEmail()) && userRepository.existsByEmailIgnoreCase(userRequestDTO.getEmail()) )
+        {
+            throw new RuntimeException("Email Already Exists");
+        }
+        if(user.getPhone().equals(userRequestDTO.getPhone()) && userRepository.existsByPhone(userRequestDTO.getPhone()))
+        {
+            throw new RuntimeException("Phone Already Exists");
+        }
+
+        if(profileImage != null && !profileImage.isEmpty()){
+            fileStorageService.deleteFile(user.getProfileImage());
+            String imageUrl=fileStorageService.saveFile(profileImage,"users");
+            user.setProfileImage(imageUrl);
+        }
+
+        modelMapper.map(userRequestDTO,user);
+
+        User updatedUser=userRepository.save(user);
+
+        UserResponseDTO userResponseDTO=modelMapper.map(updatedUser,UserResponseDTO.class);
+
+        return userResponseDTO;
+
+    }
+
+    @Override
+    @Transactional
+    public UserResponseDTO patchUser(Long id,
+                                     UserRequestDTO request,
+                                     MultipartFile profileImage) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (request.getEmail() != null &&
+                !user.getEmail().equalsIgnoreCase(request.getEmail()) &&
+                userRepository.existsByEmailIgnoreCase(request.getEmail())) {
+
+            throw new RuntimeException("Email already exists");
+        }
+
+        if (request.getPhone() != null &&
+                !user.getPhone().equals(request.getPhone()) &&
+                userRepository.existsByPhone(request.getPhone())) {
+
+            throw new RuntimeException("Phone already exists");
+        }
+
+        if (profileImage != null && !profileImage.isEmpty()) {
+
+            if (user.getProfileImage() != null) {
+                fileStorageService.deleteFile(user.getProfileImage());
+            }
+
+            String imageUrl = fileStorageService.saveFile(profileImage, "users");
+
+            user.setProfileImage(imageUrl);
+        }
+
+        modelMapper.map(request, user);
+
+        User updatedUser = userRepository.save(user);
+
+        return modelMapper.map(updatedUser, UserResponseDTO.class);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        User user=userRepository.findById(id).orElseThrow(()->new RuntimeException());
+        fileStorageService.deleteFile(user.getProfileImage());
+        userRepository.delete(user);
     }
 }

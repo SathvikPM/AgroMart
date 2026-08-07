@@ -15,5 +15,9 @@ public interface UserService {
     public UserResponseDTO getUserById(Long id);
 
 
+    public UserResponseDTO updateUser(Long id, UserRequestDTO userRequestDTO, MultipartFile profileImage);
 
+    UserResponseDTO patchUser(Long id, UserRequestDTO userRequestDTO, MultipartFile profileImage);
+
+    void deleteUser(Long id);
 }
