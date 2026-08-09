@@ -1,5 +1,6 @@
 package com.AgroMart.Backend.serviceimpl;
 
+import com.AgroMart.Backend.Exception.ResourceNotFoundException;
 import com.AgroMart.Backend.dto.UserRequestDTO;
 import com.AgroMart.Backend.dto.UserResponseDTO;
 import com.AgroMart.Backend.model.User;
@@ -64,7 +65,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO getUserById(Long id) {
 
-        User user=userRepository.findById(id).orElseThrow(()->new RuntimeException("user not found"));
+//        User user=userRepository.findById(id).orElseThrow(()->new RuntimeException("user not found"));
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "User not found with id: " + id
+                        ));
         UserResponseDTO userResponseDTO=modelMapper.map(user,UserResponseDTO.class);
         return userResponseDTO;
 
