@@ -1,5 +1,7 @@
 package com.AgroMart.Backend.serviceimpl;
 
+import com.AgroMart.Backend.exception.DuplicateResourceException;
+import com.AgroMart.Backend.exception.ResourceNotFoundException;
 import com.AgroMart.Backend.repository.CategoryRepository;
 import com.AgroMart.Backend.repository.ProductRepository;
 import com.AgroMart.Backend.service.FileStorageService;
@@ -37,9 +39,9 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponseDTO createProduct(ProductRequestDTO productRequest, MultipartFile image, List<MultipartFile> additionalImages) {
 
         Category category =categoryRepository.findById(productRequest.getCategoryId()).orElseThrow(()->
-                new RuntimeException("Category not found with id: "+productRequest.getCategoryId()));
+                new ResourceNotFoundException("Category not found with id: "+productRequest.getCategoryId()));
         if(productRepository.existsByNameIgnoreCase(productRequest.getName())){
-            throw new RuntimeException("Product with this name alredy exists");
+            throw new DuplicateResourceException("Product with this name alredy exists");
         }
 
 
@@ -140,7 +142,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public ProductResponseDTO getProductById(Long id) {
-        Product product=productRepository.findById(id).orElseThrow(()->new RuntimeException("Product not found with id: "+id));
+        Product product=productRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Product not found with id: "+id));
         ProductResponseDTO productResponse=new ProductResponseDTO();
         productResponse.setId(product.getId());
         productResponse.setName(product.getName());
@@ -161,17 +163,11 @@ public class ProductServiceImpl implements ProductService {
 
     public ProductResponseDTO updateProduct(Long id,ProductRequestDTO productRequest,MultipartFile image, List<MultipartFile> additionalImages){
 
-        Product product=productRepository.findById(id).orElseThrow(()->new RuntimeException("category not found with id"+ id));
-//        if(productRequest.getName()!=null && !productRequest.getName().equalsIgnoreCase(product.getName())){
-//            boolean exists=productRepository.findAll()
-//                    .stream().anyMatch(p->!p.getId().equals(id) && p.getName().equalsIgnoreCase(productRequest.getName()));
-//            if(exists){
-//                throw new RuntimeException("product with this name alredy Exists");
-//            }
-//        }
+        Product product=productRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("category not found with id"+ id));
+
         if (productRepository.existsByNameIgnoreCase(productRequest.getName()) &&
                 !productRequest.getName().equalsIgnoreCase(product.getName())) {
-            throw new RuntimeException("Product with this name already exists");
+            throw new DuplicateResourceException("Product with this name already exists");
         }
 
 
@@ -194,7 +190,7 @@ public class ProductServiceImpl implements ProductService {
 
         product.setName(productRequest.getName());
         Category category=categoryRepository.findById(productRequest.getCategoryId()).orElseThrow(()->
-                new RuntimeException("Category not found with id: "+productRequest.getCategoryId()));
+                new ResourceNotFoundException("Category not found with id: "+productRequest.getCategoryId()));
         product.setCategory(category);
         product.setName(productRequest.getName());
         product.setDescription(productRequest.getDescription());
@@ -228,7 +224,7 @@ public class ProductServiceImpl implements ProductService {
 
     public void deleteProduct(Long id){
         Product product=productRepository.findById(id).orElseThrow(()->
-                new RuntimeException("Product not found with id: "+ id));
+                new ResourceNotFoundException("Product not found with id: "+ id));
         fileStorageService.deleteFile(product.getImageUrl());
         List<String> additionalImages=product.getAdditionalImages();
         for(String additionalImage:additionalImages){

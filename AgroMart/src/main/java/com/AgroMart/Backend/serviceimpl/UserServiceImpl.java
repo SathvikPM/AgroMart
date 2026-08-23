@@ -1,6 +1,7 @@
 package com.AgroMart.Backend.serviceimpl;
 
-import com.AgroMart.Backend.Exception.ResourceNotFoundException;
+import com.AgroMart.Backend.exception.DuplicateResourceException;
+import com.AgroMart.Backend.exception.ResourceNotFoundException;
 import com.AgroMart.Backend.dto.UserRequestDTO;
 import com.AgroMart.Backend.dto.UserResponseDTO;
 import com.AgroMart.Backend.model.User;
@@ -9,13 +10,10 @@ import com.AgroMart.Backend.service.FileStorageService;
 import com.AgroMart.Backend.service.UserService;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -34,10 +32,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO createUser(UserRequestDTO request, MultipartFile profileImage) {
         if(userRepository.existsByEmailIgnoreCase(request.getEmail())){
-            throw new RuntimeException("Email Alredy Exixts");
+            throw new DuplicateResourceException("Email Already Exists");
         }
         if(userRepository.existsByPhone(request.getPhone())){
-            throw new RuntimeException("Phone Number Alredy Exixts");
+            throw new DuplicateResourceException("Phone Number Already Exists");
         }
         User user=modelMapper.map(request, User.class);
 
@@ -79,14 +77,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO updateUser(Long id, UserRequestDTO userRequestDTO, MultipartFile profileImage) {
 
-        User user=userRepository.findById(id).orElseThrow(()->new RuntimeException("User Not Found"));
+        User user=userRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("User Not Found by id "+ id));
         if(user.getEmail().equalsIgnoreCase(userRequestDTO.getEmail()) && userRepository.existsByEmailIgnoreCase(userRequestDTO.getEmail()) )
         {
-            throw new RuntimeException("Email Already Exists");
+            throw new DuplicateResourceException("Email Already Exists");
         }
         if(user.getPhone().equals(userRequestDTO.getPhone()) && userRepository.existsByPhone(userRequestDTO.getPhone()))
         {
-            throw new RuntimeException("Phone Already Exists");
+            throw new DuplicateResourceException("Phone Already Exists");
         }
 
         if(profileImage != null && !profileImage.isEmpty()){
@@ -118,14 +116,14 @@ public class UserServiceImpl implements UserService {
                 !user.getEmail().equalsIgnoreCase(request.getEmail()) &&
                 userRepository.existsByEmailIgnoreCase(request.getEmail())) {
 
-            throw new RuntimeException("Email already exists");
+            throw new DuplicateResourceException("Email already exists");
         }
 
         if (request.getPhone() != null &&
                 !user.getPhone().equals(request.getPhone()) &&
                 userRepository.existsByPhone(request.getPhone())) {
 
-            throw new RuntimeException("Phone already exists");
+            throw new DuplicateResourceException("Phone already exists");
         }
 
         if (profileImage != null && !profileImage.isEmpty()) {
@@ -148,7 +146,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-        User user=userRepository.findById(id).orElseThrow(()->new RuntimeException());
+        User user=userRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("User Does Not Exist By: "+id));
         fileStorageService.deleteFile(user.getProfileImage());
         userRepository.delete(user);
     }

@@ -1,5 +1,7 @@
 package com.AgroMart.Backend.serviceimpl;
 
+import com.AgroMart.Backend.exception.DuplicateResourceException;
+import com.AgroMart.Backend.exception.ResourceNotFoundException;
 import com.AgroMart.Backend.repository.CategoryRepository;
 import com.AgroMart.Backend.service.CategoryService;
 import com.AgroMart.Backend.service.FileStorageService;
@@ -29,7 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponseDTO createCategory(CategoryRequestDTO categoryRequest, MultipartFile file) {
 //
         if(categoryRepository.existsByNameIgnoreCase(categoryRequest.getName())){
-            throw new RuntimeException("Category Alredy Exists");
+            throw new DuplicateResourceException("Category Alredy Exists");
         }
         String imageUrl=fileStorageService.saveFile(file, "category");
 
@@ -69,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional(readOnly = true)
     public CategoryResponseDTO getCategoryById(Long id) {
-        Category category=categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
+        Category category=categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
         CategoryResponseDTO categoryResponse=new CategoryResponseDTO();
         categoryResponse.setId(category.getId());
         categoryResponse.setName(category.getName());
@@ -80,13 +82,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO categoryRequest, MultipartFile file) {
-       Category category=categoryRepository.findById(id).orElseThrow(()->new RuntimeException("category not found with id "+id));
+       Category category=categoryRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("category not found with id "+id));
 
        if(categoryRequest.getName() != null && !categoryRequest.getName().equalsIgnoreCase(category.getName())) {
            boolean exists = categoryRepository.findAll()
                    .stream().anyMatch(c -> !c.getId().equals(id) && c.getName().equalsIgnoreCase(categoryRequest.getName()));
            if (exists) {
-               throw new RuntimeException("Category with this name already exists");
+               throw new DuplicateResourceException("Category with this name already exists");
            }
        }
 
@@ -109,7 +111,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategory(Long id) {
-        Category category=categoryRepository.findById(id).orElseThrow(()->new RuntimeException("category not found with id "+id));
+        Category category=categoryRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("category not found with id "+id));
         fileStorageService.deleteFile(category.getImageUrl());
         categoryRepository.delete(category);
 

@@ -24,6 +24,18 @@ public class UserController {
         this.userService=userService;
     }
 
+
+    @GetMapping("/test-exception")
+    public ResponseEntity<String> testException() {
+
+        String value = null;
+
+        // Intentional NullPointerException
+        value.length();
+
+        return ResponseEntity.ok("Success");
+    }
+
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestPart("user") UserRequestDTO request,
                                                         @RequestPart(value = "profileImage",required = false)

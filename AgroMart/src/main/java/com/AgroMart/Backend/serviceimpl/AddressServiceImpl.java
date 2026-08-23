@@ -1,5 +1,6 @@
 package com.AgroMart.Backend.serviceimpl;
 
+import com.AgroMart.Backend.exception.ResourceNotFoundException;
 import com.AgroMart.Backend.repository.AddressRepository;
 import com.AgroMart.Backend.service.AddressService;
 import com.AgroMart.Backend.dto.AddressRequestDTO;
@@ -80,14 +81,14 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressResponseDTO getAddressById(Long id) {
 
-        Address address=addressRepository.findById(id).orElseThrow(()->new RuntimeException("Address not found with id: "+id));
+        Address address=addressRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Address Not Found with id: " + id));
         AddressResponseDTO addressResponse=modelMapper.map(address,AddressResponseDTO.class);
         return  addressResponse;
     }
 
     @Override
     public AddressResponseDTO updateAddress(Long id, AddressRequestDTO addressRequest) {
-        Address address=addressRepository.findById(id).orElseThrow(()->new RuntimeException("address not found with id"+id));
+        Address address=addressRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Address Not Found with id: " + id));
         address.setType(addressRequest.getType());
         address.setCity(addressRequest.getCity());
         address.setStreet(addressRequest.getStreet());
@@ -102,8 +103,7 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public void deleteAddress(Long id) {
-                 Address address=addressRepository.findById(id).orElseThrow(()->
-                         new RuntimeException("Address not found with id: "+ id));
-                 addressRepository.delete(address);
+        Address address=addressRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Address Not Found with id: " + id));
+        addressRepository.delete(address);
     }
 }
