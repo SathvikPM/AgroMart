@@ -6,10 +6,12 @@ import com.AgroMart.Backend.dto.UserRequestDTO;
 import com.AgroMart.Backend.dto.UserResponseDTO;
 import com.AgroMart.Backend.model.User;
 import com.AgroMart.Backend.repository.UserRepository;
+import com.AgroMart.Backend.security.PasswordConfig;
 import com.AgroMart.Backend.service.FileStorageService;
 import com.AgroMart.Backend.service.UserService;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,11 +24,14 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final FileStorageService fileStorageService;
 
-    public  UserServiceImpl(UserRepository userRepository,ModelMapper modelMapper,FileStorageService fileStorageService){
+    private final PasswordEncoder passwordEncoder; //object returned from your PasswordConfig class is injected
+
+    public  UserServiceImpl(UserRepository userRepository,ModelMapper modelMapper,FileStorageService fileStorageService, PasswordEncoder passwordEncoder){
 
         this.userRepository=userRepository;
         this.modelMapper=modelMapper;
         this.fileStorageService=fileStorageService;
+        this.passwordEncoder=passwordEncoder;
     }
 
     @Override
@@ -38,6 +43,9 @@ public class UserServiceImpl implements UserService {
             throw new DuplicateResourceException("Phone Number Already Exists");
         }
         User user=modelMapper.map(request, User.class);
+
+        String password=user.getPassword();
+        user.setPassword(passwordEncoder.encode(password)); //password get hashed ans stored in the DB
 
         if(profileImage != null && !profileImage.isEmpty()){
             String imageUrl=fileStorageService.saveFile(profileImage,"users");
